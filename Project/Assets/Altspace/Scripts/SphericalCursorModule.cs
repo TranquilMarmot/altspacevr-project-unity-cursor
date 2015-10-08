@@ -9,6 +9,9 @@ public class SphericalCursorModule : MonoBehaviour {
 
     // Color to draw sphere as
     public Color SphereColor;
+
+    // Use the force!
+    public ForceModule ForceModule;
 	
 	// This is the layer mask to use when performing the ray cast for the objects.
 	// The furniture in the room is in layer 8, everything else is not.
@@ -68,6 +71,14 @@ public class SphericalCursorModule : MonoBehaviour {
             var dx = Input.GetAxis("Mouse X") * Sensitivity;
             var dy = Input.GetAxis("Mouse Y") * Sensitivity;
 
+            // ignore movement if any of these are down (since they need to be down to move the mouse)
+            // ideally, this would use Unity's input manager
+            if(Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetMouseButton(1))
+            {
+                dx = 0.0f;
+                dy = 0.0f;
+            }
+
             // rotate with the camera
             var cameraDifference = Camera.main.transform.rotation * Quaternion.Inverse(PreviousCameraRotation);
 
@@ -86,6 +97,8 @@ public class SphericalCursorModule : MonoBehaviour {
                 Cursor.transform.position = cursorHit.point;
 
                 Selectable.CurrentSelection = cursorHit.collider.gameObject;
+                ForceModule.RaycastNormal = cursorHit.normal;
+                ForceModule.RaycastPoint = cursorHit.point;
             }
             else
             {
@@ -102,5 +115,6 @@ public class SphericalCursorModule : MonoBehaviour {
         }
 
         PreviousCameraRotation = Camera.main.transform.rotation;
+        ForceModule.CursorLocation = Cursor.transform.position;
     }
 }
