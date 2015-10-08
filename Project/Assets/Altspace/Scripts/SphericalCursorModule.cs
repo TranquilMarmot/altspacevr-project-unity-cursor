@@ -6,6 +6,9 @@ public class SphericalCursorModule : MonoBehaviour {
 
 	// This is a scale factor that determines how much to scale down the cursor based on its collision distance.
 	public float DistanceScaleFactor;
+
+    // Color to draw sphere as
+    public Color SphereColor;
 	
 	// This is the layer mask to use when performing the ray cast for the objects.
 	// The furniture in the room is in layer 8, everything else is not.
@@ -14,8 +17,14 @@ public class SphericalCursorModule : MonoBehaviour {
 	// This is the Cursor game object. Your job is to update its transform on each frame.
 	private GameObject Cursor;
 
+    // Transform of mesh, used for scaling based on distance
+    private Transform MeshTransform;
+
+    // Initial scale of the cursor's mesh
+    private Vector3 InitialMeshScale;
+
 	// This is the Cursor mesh. (The sphere.)
-	private MeshRenderer CursorMeshRenderer;
+	private Renderer CursorMeshRenderer;
 
 	// This is the scale to set the cursor to if no ray hit is found.
 	private Vector3 DefaultCursorScale = new Vector3(10.0f, 10.0f, 10.0f);
@@ -26,37 +35,72 @@ public class SphericalCursorModule : MonoBehaviour {
 	// Sphere radius to project cursor onto if no raycast hit.
 	private const float SphereRadius = 1000.0f;
 
-    void Awake() {
+    // The rotation of the eyeball, so to speak
+    private Quaternion LookingAt;
+
+    // Used to rotate cursor with camera
+    private Quaternion PreviousCameraRotation;
+
+    void Start()
+    {
+        CursorMeshRenderer.material.color = SphereColor;
+        CursorMeshRenderer.material.EnableKeyword("_EMISSION"); // have to enable the keyword to actually set the emission color
+        CursorMeshRenderer.material.SetColor("_EmissionColor", SphereColor);
+    }
+
+    void Awake()
+    {
 		Cursor = transform.Find("Cursor").gameObject;
-		CursorMeshRenderer = Cursor.transform.GetComponentInChildren<MeshRenderer>();
-        CursorMeshRenderer.GetComponent<Renderer>().material.color = new Color(0.0f, 0.8f, 1.0f);
+        MeshTransform = Cursor.transform.FindChild("CursorMesh");
+        CursorMeshRenderer = Cursor.transform.GetComponentInChildren<MeshRenderer>().GetComponent<Renderer>();
+        InitialMeshScale = MeshTransform.localScale;
+
+        LookingAt = Quaternion.LookRotation(Cursor.transform.position - Camera.main.transform.position);
+        PreviousCameraRotation = Camera.main.transform.rotation;
     }	
 
 	void Update()
 	{
-        // Handle mouse movement to update cursor position.
-        var dx = Input.GetAxis("Mouse X") * Sensitivity;
-        var dy = Input.GetAxis("Mouse Y") * Sensitivity;
-        var movement = Camera.main.transform.rotation * new Vector3(dx, dy, 0.0f);
-
-        Cursor.transform.position = Cursor.transform.position + movement;
-
-        // Perform ray cast to find object cursor is pointing at.
-        var cursorHit = new RaycastHit();
-        if(Physics.Raycast(new Ray(Camera.main.transform.position, Cursor.transform.position - Camera.main.transform.position), out cursorHit, MaxDistance, ColliderMask))
+        // only want to do logic if we have the cursor locked
+        if (UnityEngine.Cursor.lockState == CursorLockMode.Locked)
         {
-            // put cursor on position
-            Cursor.transform.position = cursorHit.point;
+            // Handle mouse movement to update cursor position.
+            var dx = Input.GetAxis("Mouse X") * Sensitivity;
+            var dy = Input.GetAxis("Mouse Y") * Sensitivity;
+
+            // rotate with the camera
+            var cameraDifference = Camera.main.transform.rotation * Quaternion.Inverse(PreviousCameraRotation);
+
+            // rotate with mouse movement
+            LookingAt = cameraDifference * (LookingAt * Quaternion.Euler(-dy, dx, 0.0f));
+
+            // Perform ray cast to find object cursor is pointing at.
+            var cursorHit = new RaycastHit();
+            if (Physics.Raycast(new Ray(Camera.main.transform.position, LookingAt * Vector3.forward), out cursorHit, MaxDistance, ColliderMask))
+            {
+                // scale cursor based on distance to hit
+                var distanceToObject = Vector3.Distance(Camera.main.transform.position, cursorHit.point);
+                var scale = (distanceToObject * DistanceScaleFactor + 1.0f) / 2.0f;
+                MeshTransform.localScale = new Vector3(scale * InitialMeshScale.x, scale * InitialMeshScale.y, scale * InitialMeshScale.z);
+
+                Cursor.transform.position = cursorHit.point;
+
+                Selectable.CurrentSelection = cursorHit.collider.gameObject;
+            }
+            else
+            {
+                // set the cursor at the edge of a mighty big sphere
+                MeshTransform.localScale = DefaultCursorScale;
+                Cursor.transform.position = LookingAt * new Vector3(0.0f, 0.0f, SphereRadius);
+
+                Selectable.CurrentSelection = null;
+            }
+
+            // set the cursor's color
+            CursorMeshRenderer.material.color = SphereColor;
+            CursorMeshRenderer.material.SetColor("_EmissionColor", SphereColor);
         }
 
-		// Update highlighted object based upon the raycast.
-		if (cursorHit.collider != null)
-		{
-			Selectable.CurrentSelection = cursorHit.collider.gameObject;
-		}
-		else
-		{
-			Selectable.CurrentSelection = null;
-		}
-	}
+        PreviousCameraRotation = Camera.main.transform.rotation;
+    }
 }
