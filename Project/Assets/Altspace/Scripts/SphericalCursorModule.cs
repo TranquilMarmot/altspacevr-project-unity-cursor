@@ -29,7 +29,7 @@ public class SphericalCursorModule : MonoBehaviour {
     void Awake() {
 		Cursor = transform.Find("Cursor").gameObject;
 		CursorMeshRenderer = Cursor.transform.GetComponentInChildren<MeshRenderer>();
-        CursorMeshRenderer.renderer.material.color = new Color(0.0f, 0.8f, 1.0f);
+        CursorMeshRenderer.GetComponent<Renderer>().material.color = new Color(0.0f, 0.8f, 1.0f);
     }	
 
 	void Update()
