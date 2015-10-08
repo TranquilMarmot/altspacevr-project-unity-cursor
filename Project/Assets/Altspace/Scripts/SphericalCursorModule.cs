@@ -34,11 +34,20 @@ public class SphericalCursorModule : MonoBehaviour {
 
 	void Update()
 	{
-		// TODO: Handle mouse movement to update cursor position.
+        // Handle mouse movement to update cursor position.
+        var dx = Input.GetAxis("Mouse X") * Sensitivity;
+        var dy = Input.GetAxis("Mouse Y") * Sensitivity;
+        var movement = Camera.main.transform.rotation * new Vector3(dx, dy, 0.0f);
 
-		// TODO: Perform ray cast to find object cursor is pointing at.
-		// TODO: Update cursor transform.
-		var cursorHit = new RaycastHit();/* Your cursor hit code should set this properly. */;
+        Cursor.transform.position = Cursor.transform.position + movement;
+
+        // Perform ray cast to find object cursor is pointing at.
+        var cursorHit = new RaycastHit();
+        if(Physics.Raycast(new Ray(Camera.main.transform.position, Cursor.transform.position - Camera.main.transform.position), out cursorHit, MaxDistance, ColliderMask))
+        {
+            // put cursor on position
+            Cursor.transform.position = cursorHit.point;
+        }
 
 		// Update highlighted object based upon the raycast.
 		if (cursorHit.collider != null)
