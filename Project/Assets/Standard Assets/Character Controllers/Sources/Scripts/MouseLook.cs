@@ -32,7 +32,7 @@ public class MouseLook : MonoBehaviour {
 
 	void Update ()
 	{
-		if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+		if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) || Input.GetMouseButton(1))
 		{
 			if (axes == RotationAxes.MouseXAndY)
 			{

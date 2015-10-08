@@ -2,13 +2,22 @@
 using System.Collections;
 
 public class LockCursor : MonoBehaviour {
-	void Update ()
-	{
-		Screen.lockCursor = true;
+    public bool CursorVisible = false;
 
-		if (Input.GetKey(KeyCode.Escape))
-		{
-			Application.Quit();
-		}
-	}
+    public void Start()
+    {
+        Cursor.lockState = CursorVisible ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = CursorVisible;
+    }
+
+	public void Update ()
+	{
+		if (Input.GetKeyDown(KeyCode.Escape))
+            CursorVisible = !CursorVisible;
+
+
+        // this has to be set every frame in case the game loses focus
+        Cursor.lockState = CursorVisible ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = CursorVisible;
+    }
 }
