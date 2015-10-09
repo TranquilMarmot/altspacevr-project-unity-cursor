@@ -23,6 +23,9 @@ public class ForceModule : MonoBehaviour
     /// <summary> Force to explode with </summary>
     public float ExplosionForce = 500.0f;
 
+    /// <summary> Particle system instantiated to cause explosion effect </summary>
+    public ParticleSystem ExplosionParticles;
+
     /// <summary> Cursor location, world coordinates </summary>
     public Vector3 CursorLocation;
 
@@ -141,7 +144,11 @@ public class ForceModule : MonoBehaviour
                         }
                         catch (MissingComponentException) { }
                     }
-                    
+
+                    // add particle system at explosion site
+                    var particles = Instantiate(ExplosionParticles);
+                    particles.transform.position = Selectable.CurrentSelection.transform.position;
+                    particles.transform.parent = this.transform;
                 }
                 
 
@@ -152,5 +159,16 @@ public class ForceModule : MonoBehaviour
         }
 
         PreviousCursorLocation = CursorLocation;
+
+        // remove any finished particle systems
+        foreach(var particleSystem in transform.GetComponentsInChildren<ParticleSystem>())
+        {
+            if(!particleSystem.IsAlive())
+            {
+                particleSystem.transform.parent = null;
+                Destroy(particleSystem.gameObject);
+                Destroy(particleSystem);
+            }
+        }
     }
 }

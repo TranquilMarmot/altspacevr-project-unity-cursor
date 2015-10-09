@@ -17,7 +17,7 @@ public abstract class WorldButton : MonoBehaviour
     {
         TextStyle = new GUIStyle();
         TextStyle.fontSize = 20;
-        TextStyle.normal.textColor = Color.green;
+        TextStyle.normal.textColor = Color.white;
         TextStyle.alignment = TextAnchor.MiddleCenter;
     }
 
