@@ -17,6 +17,12 @@ public class ForceModule : MonoBehaviour
     /// <summary> How hard to fling objects </summary>
     public float FlingForce = 2.0f;
 
+    /// <summary> Radius to explode </summary>
+    public float ExplosionRadius = 10.0f;
+
+    /// <summary> Force to explode with </summary>
+    public float ExplosionForce = 500.0f;
+
     /// <summary> Cursor location, world coordinates </summary>
     public Vector3 CursorLocation;
 
@@ -36,7 +42,8 @@ public class ForceModule : MonoBehaviour
         Push,
         Pull,
         Fling,
-        Clone
+        Clone,
+        Explode
     }
 
     /// <summary> The current mode </summary>
@@ -115,6 +122,29 @@ public class ForceModule : MonoBehaviour
                     clone.transform.position = new Vector3(clone.transform.position.x + UnityEngine.Random.Range(-2.5f, 2.5f), clone.transform.position.y + 5.0f, clone.transform.position.z + UnityEngine.Random.Range(-2.5f, 2.5f));
                     clone.transform.rotation = Quaternion.Euler(UnityEngine.Random.Range(-90.0f, 90.0f), UnityEngine.Random.Range(-90.0f, 90.0f), UnityEngine.Random.Range(-90.0f, 90.0f));
                 }
+                break;
+
+            case Modes.Explode:
+                if (Selectable.CurrentSelection != null && Input.GetMouseButtonUp(0) && Selectable.CurrentSelection.transform.GetComponent<WorldButton>() == null)
+                {
+                    var selectedBody = Selectable.CurrentSelection.GetComponent<Rigidbody>();
+                    if(selectedBody != null)
+                        selectedBody.AddExplosionForce(ExplosionForce, Selectable.CurrentSelection.transform.position, ExplosionRadius, 2.5f);
+
+                    // sphere cast, and add an explosion force
+                    foreach (var hit in Physics.SphereCastAll(Selectable.CurrentSelection.transform.position, ExplosionRadius, Vector3.forward, 100.0f, (1 << 8)))
+                    {
+                        try
+                        {
+                            var body = hit.collider.GetComponent<Rigidbody>();
+                            body.AddExplosionForce(ExplosionForce, Selectable.CurrentSelection.transform.position, ExplosionRadius);
+                        }
+                        catch (MissingComponentException) { }
+                    }
+                    
+                }
+                
+
                 break;
 
             default:
