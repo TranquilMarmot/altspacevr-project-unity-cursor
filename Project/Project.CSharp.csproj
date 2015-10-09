@@ -88,6 +88,8 @@
     <Compile Include="Assets\Altspace\Scripts\LockCursor.cs" />
     <Compile Include="Assets\Altspace\Scripts\SphericalCursorModule.cs" />
     <Compile Include="Assets\Altspace\Scripts\ForceModule.cs" />
+    <Compile Include="Assets\Altspace\Scripts\ToggleableWorldButton.cs" />
+    <Compile Include="Assets\Altspace\Scripts\ToggleableWorldButtonRadioList.cs" />
     <Compile Include="Assets\Altspace\Scripts\WorldButton.cs" />
     <Compile Include="Assets\Selectable.cs" />
   </ItemGroup>

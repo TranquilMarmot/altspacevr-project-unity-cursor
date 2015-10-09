@@ -1,47 +1,49 @@
 ﻿using UnityEngine;
 
 public class SphericalCursorModule : MonoBehaviour {
-	// This is a sensitivity parameter that should adjust how sensitive the mouse control is.
-	public float Sensitivity;
+    /// <summary> This is a sensitivity parameter that should adjust how sensitive the mouse control is. </summary>
+    public float Sensitivity;
 
-	// This is a scale factor that determines how much to scale down the cursor based on its collision distance.
-	public float DistanceScaleFactor;
+    /// <summary> This is a scale factor that determines how much to scale down the cursor based on its collision distance. </summary>
+    public float DistanceScaleFactor;
 
-    // Color to draw sphere as
+    /// <summary> Color to draw sphere in </summary>
     public Color SphereColor;
 
-    // Use the force!
+    /// <summary> Use the force! </summary>
     public ForceModule ForceModule;
-	
-	// This is the layer mask to use when performing the ray cast for the objects.
-	// The furniture in the room is in layer 8, everything else is not.
-	private const int ColliderMask = (1 << 8);
+    
+    /// <summary>
+    /// This is the layer mask to use when performing the ray cast for the objects. 
+    /// The furniture in the room is in layer 8, everything else is not.
+    /// </summary>
+    private const int ColliderMask = (1 << 8);
 
-	// This is the Cursor game object. Your job is to update its transform on each frame.
-	private GameObject Cursor;
+    /// <summary> This is the Cursor game object. </summary>
+    private GameObject Cursor;
 
-    // Transform of mesh, used for scaling based on distance
+    /// <summary> Transform of mesh, used for scaling based on distance </summary>
     private Transform MeshTransform;
 
-    // Initial scale of the cursor's mesh
+    /// <summary> Initial scale of the cursor's mesh </summary>
     private Vector3 InitialMeshScale;
 
-	// This is the Cursor mesh. (The sphere.)
+    /// <summary> This is the Cursor mesh. (The sphere.) </summary>
 	private Renderer CursorMeshRenderer;
 
-	// This is the scale to set the cursor to if no ray hit is found.
+    /// <summary> This is the scale to set the cursor to if no ray hit is found. </summary>
 	private Vector3 DefaultCursorScale = new Vector3(10.0f, 10.0f, 10.0f);
 
-	// Maximum distance to ray cast.
+    /// <summary> Maximum distance to ray cast. </summary>
 	private const float MaxDistance = 100.0f;
 
-	// Sphere radius to project cursor onto if no raycast hit.
+    /// <summary> Sphere radius to project cursor onto if no raycast hit. </summary>
 	private const float SphereRadius = 1000.0f;
 
-    // The rotation of the eyeball, so to speak
+    /// <summary> The rotation of the cursor on a sphere around the player, changed by mouse movement </summary>
     private Quaternion LookingAt;
 
-    // Used to rotate cursor with camera
+    /// <summary> Used to rotate cursor with camera </summary>
     private Quaternion PreviousCameraRotation;
 
     void Start()
@@ -108,13 +110,13 @@ public class SphericalCursorModule : MonoBehaviour {
 
                 Selectable.CurrentSelection = null;
             }
-
-            // set the cursor's color
-            CursorMeshRenderer.material.color = SphereColor;
-            CursorMeshRenderer.material.SetColor("_EmissionColor", SphereColor);
         }
 
         PreviousCameraRotation = Camera.main.transform.rotation;
         ForceModule.CursorLocation = Cursor.transform.position;
+
+        // set the cursor's color (each frame, just in case it changes)
+        CursorMeshRenderer.material.color = SphereColor;
+        CursorMeshRenderer.material.SetColor("_EmissionColor", SphereColor);
     }
 }
