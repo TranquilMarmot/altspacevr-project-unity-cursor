@@ -117,6 +117,7 @@ public class SphericalCursorModule : MonoBehaviour {
 
         // set the cursor's color (each frame, just in case it changes)
         CursorMeshRenderer.material.color = SphereColor;
+        CursorMeshRenderer.material.EnableKeyword("_EMISSION"); // have to enable the keyword to actually set the emission color
         CursorMeshRenderer.material.SetColor("_EmissionColor", SphereColor);
     }
 }

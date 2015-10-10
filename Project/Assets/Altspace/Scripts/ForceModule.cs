@@ -140,18 +140,25 @@ public class ForceModule : MonoBehaviour
                         CurrentlyGrabbed.transform.position = Camera.main.transform.position + (Cursor.LookingAt * new Vector3(0.0f, 0.0f, 10.0f));
                         var body = CurrentlyGrabbed.GetComponent<Rigidbody>();
                         if(body != null)
+                        {
                             body.useGravity = false;
+                            body.velocity = Vector3.zero;
+                        }
+                            
                     }
                 }
 
                 // if the mouse button was let go, when can stop grabbing whatever we're moving around
                 else if (Input.GetMouseButtonUp(0))
                 {
-                    var body = CurrentlyGrabbed.GetComponent<Rigidbody>();
-                    if (body != null)
-                        body.useGravity = true;
+                    if (CurrentlyGrabbed != null)
+                    {
+                        var body = CurrentlyGrabbed.GetComponent<Rigidbody>();
+                        if (body != null)
+                            body.useGravity = true;
 
-                    CurrentlyGrabbed = null;
+                        CurrentlyGrabbed = null;
+                    }
                 }
 
                 break;
@@ -179,7 +186,10 @@ public class ForceModule : MonoBehaviour
                         try
                         {
                             var body = hit.collider.GetComponent<Rigidbody>();
-                            body.AddExplosionForce(ExplosionForce, Selectable.CurrentSelection.transform.position, ExplosionRadius);
+                            if (body != null)
+                            {
+                                body.AddExplosionForce(ExplosionForce, Selectable.CurrentSelection.transform.position, ExplosionRadius);
+                            }
                         }
                         catch (MissingComponentException) { }
                     }
