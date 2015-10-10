@@ -38,6 +38,9 @@ public class ForceModule : MonoBehaviour
     /// <summary> The currently grabbed rigid body, if in grab mode </summary>
     private Rigidbody CurrentlyGrabbed;
 
+    /// <summary> Used to turn gravity back on </summary>
+    private Vector3 OriginalGravity;
+
     /// <summary> All the different possible modes </summary>
     public enum Modes
     {
@@ -76,6 +79,11 @@ public class ForceModule : MonoBehaviour
         }
 
         SetMode(Modes.None);
+    }
+
+    public void Awake()
+    {
+        OriginalGravity = new Vector3(Physics.gravity.x, Physics.gravity.y, Physics.gravity.z);
     }
 
     public void Update()
@@ -174,6 +182,18 @@ public class ForceModule : MonoBehaviour
 
     public void FlipGravity()
     {
-        Physics.gravity = new Vector3(-Physics.gravity.x, -Physics.gravity.y, -Physics.gravity.z);
+        OriginalGravity = new Vector3(-OriginalGravity.x, -OriginalGravity.y, -OriginalGravity.z);
+        if (Physics.gravity != Vector3.zero)
+        {
+            Physics.gravity = new Vector3(OriginalGravity.x, OriginalGravity.y, OriginalGravity.z);
+        }
+    }
+
+    public void SetGravityEnabled(bool enabled)
+    {
+        if (enabled)
+            Physics.gravity = OriginalGravity;
+        else
+            Physics.gravity = Vector3.zero;
     }
 }
