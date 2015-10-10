@@ -171,4 +171,9 @@ public class ForceModule : MonoBehaviour
             }
         }
     }
+
+    public void FlipGravity()
+    {
+        Physics.gravity = new Vector3(-Physics.gravity.x, -Physics.gravity.y, -Physics.gravity.z);
+    }
 }
