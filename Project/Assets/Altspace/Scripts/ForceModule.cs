@@ -5,6 +5,8 @@ using UnityEngine.UI;
 /// <summary> Manipulates objects in the world based on a mode </summary>
 public class ForceModule : MonoBehaviour
 {
+    public SphericalCursorModule Cursor;
+
     /// <summary> Raycast normal, assuming Selectable has a selection </summary>
     public Vector3 RaycastNormal;
 
@@ -48,6 +50,7 @@ public class ForceModule : MonoBehaviour
         Push,
         Pull,
         Fling,
+        Grab,
         Clone,
         Explode
     }
@@ -123,6 +126,34 @@ public class ForceModule : MonoBehaviour
                     // if the mouse button was let go, when can stop grabbing whatever we're moving around
                     CurrentlyGrabbed = null;
                 }
+                break;
+
+            case Modes.Grab:
+                if (Input.GetMouseButton(0))
+                {
+                    // if we haven't grabbed anything yet, grab whatever is selected
+                    if (CurrentlyGrabbed == null && Selectable.CurrentSelection != null)
+                        CurrentlyGrabbed = Selectable.CurrentSelection.transform.GetComponent<Rigidbody>();
+
+                    if (CurrentlyGrabbed != null)
+                    {
+                        CurrentlyGrabbed.transform.position = Camera.main.transform.position + (Cursor.LookingAt * new Vector3(0.0f, 0.0f, 10.0f));
+                        var body = CurrentlyGrabbed.GetComponent<Rigidbody>();
+                        if(body != null)
+                            body.useGravity = false;
+                    }
+                }
+
+                // if the mouse button was let go, when can stop grabbing whatever we're moving around
+                else if (Input.GetMouseButtonUp(0))
+                {
+                    var body = CurrentlyGrabbed.GetComponent<Rigidbody>();
+                    if (body != null)
+                        body.useGravity = true;
+
+                    CurrentlyGrabbed = null;
+                }
+
                 break;
             
             case Modes.Clone:

@@ -41,7 +41,7 @@ public class SphericalCursorModule : MonoBehaviour {
 	private const float SphereRadius = 1000.0f;
 
     /// <summary> The rotation of the cursor on a sphere around the player, changed by mouse movement </summary>
-    private Quaternion LookingAt;
+    public Quaternion LookingAt { get; private set; }
 
     /// <summary> Used to rotate cursor with camera </summary>
     private Quaternion PreviousCameraRotation;
